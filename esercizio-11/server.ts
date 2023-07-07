@@ -1,7 +1,7 @@
 import express from 'express';
 import "express-async-error";
 import morgan from "morgan";
-import Joi from "joi";
+import { getAll, getOneById, create, updateById, deleteById } from "./controllers/planets.js";
 
 const app = express();
 const port = 3000;
@@ -9,70 +9,16 @@ const port = 3000;
 app.use(morgan("dev"));
 app.use(express.json());
 
-type Planet = {
-    id: number,
-    name: string,
-};
 
-type Planets = Planet[];
+app.get("/api/planets", getAll);
 
-let planets: Planets = [
-    {
-        id: 1,
-        name: "Earth",
-    },
-    {
-        id: 2,
-        name: "Mars",
-    },
-];
+app.get("/api/planets/:id", getOneById);
 
-app.get("/api/planets", (req, res) => {
-    res.status(200).json(planets);
-});
+app.post('/api/planets', create);
 
-app.get("/api/planets/:id", (req, res) => {
-    const { id } = req.params;
-    const planet = planets.find(p => p.id === Number(id));
+app.put('/api/planets/:id', updateById);
 
-    res.status(200).json(planet);
-});
-
-const planetSchema = Joi.object({
-    id: Joi.number().integer().required(),
-    name: Joi.string().required()
-});
-
-app.post('/api/planets', (req, res) => {
-    const { id, name } = req.body;
-    const newPlanet = { id, name };
-    const validateNewPlanet = planetSchema.validate(newPlanet);
-    if (validateNewPlanet.error) {
-        return res.status(400).json({ msg: validateNewPlanet.error.details[0].message });
-    } else {
-        planets = [...planets, newPlanet];
-        res.status(201).json({ msg: "The planet was created!" });
-    };    
-});
-
-app.put('/api/planets/:id', (req, res) => {
-    const { id } = req.params;
-    const { name } = req.body;
-    const validateUpdatedPlanet = planetSchema.validate(id);
-    if (validateUpdatedPlanet.error) {
-        return res.status(400).json({ msg: validateUpdatedPlanet.error.details[0].message });
-    } else {
-        planets = planets.map(p => p.id === Number(id) ? { ...p, name } : p);
-        res.status(200).json({ msg: "The planet was updated!" });
-    }
-});
-
-app.delete('/api/planets/:id', (req, res) => {
-    const { id } = req.params;
-    planets = planets.filter(p => p.id !== Number(id));
-
-    res.status(200).json({ msg: "The planet was deleted!" });
-});
+app.delete('/api/planets/:id', deleteById);
 
 app.listen(port, () => {
     console.log(`Example app listening on port http://localhost:${port}`);
