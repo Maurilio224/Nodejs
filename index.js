@@ -1,4 +1,3 @@
-let crypto = require("crypto")
+const output = require("./output")
 
-let uuid = crypto.randomUUID();
-console.log(uuid)
+output("Andrea")
