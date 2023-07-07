@@ -1,3 +1,3 @@
-const output = require("./output")
+import output from "./output.mjs"
 
-output("Andrea")
+output("Maurilio")
